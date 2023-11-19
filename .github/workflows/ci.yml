@@ -21,11 +21,9 @@ jobs:
       run: dotnet build -c Release
     - name: Publish
       run: dotnet publish -c Release
-    - name: Fix _framework
+    - name: Add 404 page
       run: |
-        mv TubeLess/bin/Release/net8.0/publish/wwwroot/_framework TubeLess/bin/Release/net8.0/publish/wwwroot/framework
-        sed -i 's/_framework/framework/g' TubeLess/bin/Release/net8.0/publish/wwwroot/index.html
-        sed -i 's/_framework/framework/g' TubeLess/bin/Release/net8.0/publish/wwwroot/framework/blazor.webassembly.js
+        cp TubeLess/bin/Release/net8.0/publish/wwwroot/index.html TubeLess/bin/Release/net8.0/publish/wwwroot/404.html
     - name: Setup Pages
       uses: actions/configure-pages@v3
     - name: Upload artifact
