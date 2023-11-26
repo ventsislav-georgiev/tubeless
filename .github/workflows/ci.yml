@@ -2,37 +2,44 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   workflow_dispatch: ~
 
 jobs:
   build_and_upload:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 8.x
-    - name: Install wasm-tools
-      run: |
-        dotnet workload install wasm-tools-net7
+    - name: Checkout
+      uses: actions/checkout@v3
+
     - name: Setup appsettings.json
       run: |
-        echo "{\"apiKey\": \"${{ secrets.YOUTUBE_API_KEY }}\"}" > TubeLess/Assets/appsettings.json
+        mkdir -p assets
+        echo "{\"apiKey\": \"${{ secrets.YOUTUBE_API_KEY }}\"}" > assets/appsettings.json
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v1
+      with:
+        flutter-version: '3.16.0'
+
+    - name: Get dependencies
+      run: flutter pub get
+
+    # - name: Test project
+    #   run: flutter test
+
     - name: Build
-      run: dotnet build -c Release ./TubeLess.Browser
-    - name: Publish
-      run: dotnet publish -c Release ./TubeLess.Browser
+      run: flutter build web --web-renderer=html --release
+
     - name: Add 404 page
       run: |
-        cp TubeLess.Browser/bin/Release/net7.0/browser-wasm/AppBundle/index.html TubeLess.Browser/bin/Release/net7.0/browser-wasm/AppBundle/404.html
-    - name: Setup Pages
-      uses: actions/configure-pages@v3
+        cp build/web/index.html build/web/404.html
+
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v2
       with:
-        path: './TubeLess.Browser/bin/Release/net7.0/browser-wasm/AppBundle'
+        path: './build/web'
 
   deploy:
     needs: build_and_upload
