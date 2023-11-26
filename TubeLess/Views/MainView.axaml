@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:TubeLess.ViewModels"
+    xmlns:views="clr-namespace:TubeLess.Views"
+    mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+    x:Class="TubeLess.Views.MainView"
+    x:DataType="vm:MainViewModel">
+    <Design.DataContext>
+      <vm:MainViewModel />
+    </Design.DataContext>
+
+    <Panel>
+        <ItemsControl ItemsSource="{Binding Videos}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <views:VideoView Margin="0 0 20 20" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Panel>
+</UserControl>

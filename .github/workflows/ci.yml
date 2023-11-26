@@ -16,23 +16,23 @@ jobs:
         dotnet-version: 8.x
     - name: Install wasm-tools
       run: |
-        dotnet workload install wasm-tools
+        dotnet workload install wasm-tools-net7
     - name: Setup appsettings.json
       run: |
-        echo "{\"apiKey\": \"${{ secrets.YOUTUBE_API_KEY }}\"}" > TubeLess/wwwroot/appsettings.json
+        echo "{\"apiKey\": \"${{ secrets.YOUTUBE_API_KEY }}\"}" > TubeLess/Assets/appsettings.json
     - name: Build
-      run: dotnet build -c Release
+      run: dotnet build -c Release ./TubeLess.Browser
     - name: Publish
-      run: dotnet publish -c Release
+      run: dotnet publish -c Release ./TubeLess.Browser
     - name: Add 404 page
       run: |
-        cp TubeLess/bin/Release/net8.0/publish/wwwroot/index.html TubeLess/bin/Release/net8.0/publish/wwwroot/404.html
+        cp TubeLess.Browser/bin/Release/net7.0/browser-wasm/AppBundle/index.html TubeLess.Browser/bin/Release/net7.0/browser-wasm/AppBundle/404.html
     - name: Setup Pages
       uses: actions/configure-pages@v3
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v2
       with:
-        path: './TubeLess/bin/Release/net8.0/publish/wwwroot'
+        path: './TubeLess.Browser/bin/Release/net7.0/browser-wasm/AppBundle'
 
   deploy:
     needs: build_and_upload
