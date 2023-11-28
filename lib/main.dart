@@ -85,7 +85,9 @@ class _HomePageState extends State<HomePage> {
 
         var thumbnails = snippet['thumbnails'] as Map;
         var defaultThumbnail = thumbnails['default'] as Map;
-        if (thumbnails['high'] != null) {
+        if (thumbnails['maxres'] != null) {
+          defaultThumbnail = thumbnails['maxres'] as Map;
+        } else if (thumbnails['high'] != null) {
           defaultThumbnail = thumbnails['high'] as Map;
         } else if (thumbnails['medium'] != null) {
           defaultThumbnail = thumbnails['medium'] as Map;
