@@ -84,15 +84,13 @@ class _HomePageState extends State<HomePage> {
                                         : 'just now';
 
         var thumbnails = snippet['thumbnails'] as Map;
-        var defaultThumbnail = thumbnails['maxres'] as Map;
-        if (defaultThumbnail.isEmpty) {
+        var defaultThumbnail = thumbnails['default'] as Map;
+        if (thumbnails['high'] != null) {
           defaultThumbnail = thumbnails['high'] as Map;
-        } else if (defaultThumbnail.isEmpty) {
+        } else if (thumbnails['medium'] != null) {
           defaultThumbnail = thumbnails['medium'] as Map;
-        } else if (defaultThumbnail.isEmpty) {
+        } else if (thumbnails['standard'] != null) {
           defaultThumbnail = thumbnails['standard'] as Map;
-        } else if (defaultThumbnail.isEmpty) {
-          defaultThumbnail = thumbnails['default'] as Map;
         }
         var thumbnailUrl = defaultThumbnail['url'] as String;
 
