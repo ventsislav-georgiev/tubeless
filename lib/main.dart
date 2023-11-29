@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
@@ -57,6 +59,7 @@ class _HomePageState extends State<HomePage> {
       var decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
 
       var list = <Widget>[];
+      var autofocus = true;
 
       for (var item in decodedResponse['items'] as List) {
         var snippet = item['snippet'] as Map;
@@ -85,14 +88,14 @@ class _HomePageState extends State<HomePage> {
 
         var thumbnails = snippet['thumbnails'] as Map;
         var defaultThumbnail = thumbnails['default'] as Map;
-        if (thumbnails['maxres'] != null) {
-          defaultThumbnail = thumbnails['maxres'] as Map;
+        if (thumbnails['standard'] != null) {
+          defaultThumbnail = thumbnails['standard'] as Map;
         } else if (thumbnails['high'] != null) {
           defaultThumbnail = thumbnails['high'] as Map;
+        } else if (thumbnails['maxres'] != null) {
+          defaultThumbnail = thumbnails['maxres'] as Map;
         } else if (thumbnails['medium'] != null) {
           defaultThumbnail = thumbnails['medium'] as Map;
-        } else if (thumbnails['standard'] != null) {
-          defaultThumbnail = thumbnails['standard'] as Map;
         }
         var thumbnailUrl = defaultThumbnail['url'] as String;
 
@@ -146,80 +149,132 @@ class _HomePageState extends State<HomePage> {
           duration = '00:$durationSec';
         }
 
-        list.add(
-          Container(
-            width: 380,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Stack(
+        Focus? node;
+        node = Focus(
+            autofocus: autofocus,
+            onKey: (focusNode, event) {
+              if (event.runtimeType != RawKeyDownEvent) {
+                return KeyEventResult.ignored;
+              }
+
+              if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+                if (list.first == node) {
+                  return KeyEventResult.handled;
+                }
+
+                focusNode.previousFocus();
+                return KeyEventResult.handled;
+              }
+
+              if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+                if (list.last == node) {
+                  return KeyEventResult.handled;
+                }
+
+                focusNode.nextFocus();
+                return KeyEventResult.handled;
+              }
+
+              return KeyEventResult.ignored;
+            },
+            child: Builder(builder: (context) {
+              var hasFocus = Focus.of(context).hasFocus;
+              var width = 350.0;
+              var height = 180.0;
+
+              return Container(
+                width: width,
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Image.network(
-                      thumbnailUrl,
-                      fit: BoxFit.fill,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) {
-                          return child;
-                        } else {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                      },
-                    ),
-                    Positioned(
-                      bottom: 10,
-                      right: 10,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        color: Colors.black,
-                        child: Text(
-                          duration,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white70,
+                    Stack(
+                      children: [
+                        Image.network(
+                          thumbnailUrl,
+                          fit: BoxFit.fill,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return SizedBox(
+                                width: width,
+                                height: height,
+                                child: OverflowBox(
+                                  minWidth: 318,
+                                  maxWidth: 318,
+                                  minHeight: 180,
+                                  maxHeight: 240,
+                                  child: child,
+                                ),
+                              );
+                            } else {
+                              return SizedBox(
+                                width: width,
+                                height: height,
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                        Positioned(
+                          bottom: 10,
+                          right: 10,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            color: Colors.black,
+                            child: Text(
+                              duration,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.white70,
+                              ),
+                            ),
                           ),
                         ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      color: hasFocus ? Colors.white : Colors.black,
+                      constraints: const BoxConstraints(maxHeight: 70),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: hasFocus ? 14 : 12,
+                                color: hasFocus ? Colors.black : Colors.white,
+                              )),
+                          Text(
+                              '@$channelTitle • $viewCount views • $publishedAt',
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: hasFocus ? 12 : 10,
+                                color: hasFocus
+                                    ? Colors.grey[900]
+                                    : Colors.white70,
+                              )),
+                        ],
                       ),
                     ),
                   ],
                 ),
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  color: Colors.black,
-                  constraints: const BoxConstraints(maxHeight: 70),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            color: Colors.white,
-                          )),
-                      Text('@$channelTitle • $viewCount views • $publishedAt',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white70,
-                          )),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
+              );
+            }));
+
+        list.add(node);
+
+        autofocus = false;
       }
 
       if (kDebugMode) {
-        print(decodedResponse);
+        // print(decodedResponse);
       }
 
       return list;
