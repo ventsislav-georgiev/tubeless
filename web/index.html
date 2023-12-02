@@ -30,7 +30,7 @@
         'Line: ' + lineNo,
         'Column: ' + columnNo,
         'Error object: ' + JSON.stringify(error),
-        'Error stack: ' + error && error.stack || '',
+        'Error stack: ' + (error && error.stack || ''),
       ].join(' - ');
 
       const textNode = document.createTextNode(message);
