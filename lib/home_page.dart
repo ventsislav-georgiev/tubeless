@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'player_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -39,6 +40,7 @@ class _HomePageState extends State<HomePage> {
       var autofocus = true;
 
       for (var item in decodedResponse['items'] as List) {
+        var id = item['id'] as String;
         var snippet = item['snippet'] as Map;
         var title = snippet['title'] as String;
         var channelTitle = snippet['channelTitle'] as String;
@@ -149,6 +151,17 @@ class _HomePageState extends State<HomePage> {
                 }
 
                 focusNode.nextFocus();
+                return KeyEventResult.handled;
+              }
+
+              if (event.logicalKey == LogicalKeyboardKey.enter) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PlayerPage(youtubeId: id)
+                  ),
+                );
+
                 return KeyEventResult.handled;
               }
 
