@@ -225,14 +225,14 @@ class _HomePageState extends State<HomePage> {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: hasFocus ? 14 : 12,
+                                fontSize: 12,
                                 color: hasFocus ? Colors.black : Colors.white,
                               )),
                           Text(
                               '@$channelTitle • $viewCount views • $publishedAt',
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontSize: hasFocus ? 12 : 10,
+                                fontSize: 10,
                                 color: hasFocus
                                     ? Colors.grey[900]
                                     : Colors.white70,
@@ -251,7 +251,7 @@ class _HomePageState extends State<HomePage> {
       }
 
       if (kDebugMode) {
-        // print(decodedResponse);
+        print(decodedResponse);
       }
 
       return list;
